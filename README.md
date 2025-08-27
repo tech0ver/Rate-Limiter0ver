@@ -2,20 +2,26 @@
 
 ## DIY
 
-### [Fixed Window Counter](diy/src/main/java/io/github/tech0ver/ratelimiter/window/FixedWindowCounterRateLimiter.java)
+### Fixed Window Counter
 
-![fixed-window-counter.png](images/fixed-window-counter.png)
+[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/window/FixedWindowCounterRateLimiter.java).
 
-### [Sliding Window Log](diy/src/main/java/io/github/tech0ver/ratelimiter/window/SlidingWindowLogRateLimiter.java)
+<img alt="fixed-window-counter" src="images/fixed-window-counter.png" width="600"/>
 
-![sliding-window-log.png](images/sliding-window-log.png)
+### Sliding Window Log
 
-### [Sliding Window Counter](diy/src/main/java/io/github/tech0ver/ratelimiter/window/SlidingWindowCounterRateLimiter.java)
+[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/window/SlidingWindowLogRateLimiter.java).
+
+<img alt="sliding-window-log" src="images/sliding-window-log.png" width="600"/>
+
+### Sliding Window Counter
+
+[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/window/SlidingWindowCounterRateLimiter.java).
 
 #### Based on buckets
 
-![sliding-window-counter-backeted.png](images/sliding-window-counter-backeted.png)
+<img alt="sliding-window-counter-backeted" src="images/sliding-window-counter-backeted.png" width="600"/>
 
 #### Based on linear interpolation
 
-![sliding-window-counter-linint.png](images/sliding-window-counter-linint.png)
+<img alt="sliding-window-counter-linint" src="images/sliding-window-counter-linint.png" width="600"/>
