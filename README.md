@@ -6,7 +6,7 @@
 
 #### Token Bucket
 
-[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/bucket/TokenBucketLimiter.java).
+[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/bucket/TokenBucketRateLimiter.java).
 
 <img alt="token-bucket" src="images/token-bucket.png" width="600"/>
 
