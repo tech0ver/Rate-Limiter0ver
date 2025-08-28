@@ -2,6 +2,14 @@
 
 ## DIY
 
+### Based on Bucket
+
+#### Token Bucket
+
+[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/bucket/TokenBucketLimiter.java).
+
+<img alt="token-bucket" src="images/token-bucket.png" width="600"/>
+
 ### Based on Window
 
 #### Fixed Window Counter
