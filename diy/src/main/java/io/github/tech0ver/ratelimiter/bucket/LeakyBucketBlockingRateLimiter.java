@@ -18,16 +18,16 @@ public class LeakyBucketBlockingRateLimiter implements MyBlockingRateLimiter {
     private final long nanosPerRequest;
     private final long capacityNanos;
 
-    public LeakyBucketBlockingRateLimiter(long capacity, Duration requestPeriod) {
-        this(capacity, requestPeriod, MyWatch.SYSTEM_NANO_TIME);
+    public LeakyBucketBlockingRateLimiter(long capacity, Duration requestInterval) {
+        this(capacity, requestInterval, MyWatch.SYSTEM_NANO_TIME);
     }
 
-    public LeakyBucketBlockingRateLimiter(long capacity, Duration requestPeriod, MyWatch watch) {
+    public LeakyBucketBlockingRateLimiter(long capacity, Duration requestInterval, MyWatch watch) {
         if (capacity <= 0) throw new IllegalArgumentException("capacity must be > 0");
-        Objects.requireNonNull(requestPeriod, "No requestPeriod");
+        Objects.requireNonNull(requestInterval, "No requestInterval");
         Objects.requireNonNull(watch, "No watch");
         this.watch = watch;
-        this.nanosPerRequest = requestPeriod.toNanos();
+        this.nanosPerRequest = requestInterval.toNanos();
         this.capacityNanos = capacity * nanosPerRequest;
         this.bucketByResource = new ConcurrentHashMap<>();
     }
