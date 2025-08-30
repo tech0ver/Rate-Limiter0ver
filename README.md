@@ -10,6 +10,12 @@
 
 <img alt="token-bucket" src="images/token-bucket.png" width="600"/>
 
+#### Leaky Bucket
+
+[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/bucket/LeakyBucketBlockingRateLimiter.java).
+
+<img alt="leaky-bucket" src="images/leaky-bucket.png" width="600"/>
+
 ### Based on Window
 
 #### Fixed Window Counter
