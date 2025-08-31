@@ -41,6 +41,8 @@ public class LeakyBucketBlockingRateLimiter implements MyBlockingRateLimiter {
     @Override
     public boolean tryAcquire(String resource, long timeout, TimeUnit unit) throws InterruptedException {
         Objects.requireNonNull(resource, "No resource");
+        if (timeout < 0) throw new IllegalArgumentException("capacity must be >= 0");
+        Objects.requireNonNull(unit, "No unit");
         return doAcquiring(resource, watch.currentTimeNanos() + unit.toNanos(timeout));
     }
 
