@@ -1,0 +1,27 @@
+### get all
+GET {{baseUrl}}/api/v1/events
+
+### get today-tomorrow
+GET {{baseUrl}}/api/v1/events?from=2025-08-31T00:00:00Z
+
+### get yesterday-today
+GET {{baseUrl}}/api/v1/events?to=2025-09-01T00:00:00Z
+
+### create new
+POST {{baseUrl}}/api/v1/events
+Content-Type: application/json
+
+[
+  {
+    "value": "one",
+    "createdAt": "2025-09-01T12:00:00Z"
+  },
+  {
+    "value": "two",
+    "createdAt": "2025-09-01T12:15:00Z"
+  },
+  {
+    "value": "three",
+    "createdAt": "2025-09-01T12:30:00Z"
+  }
+]
