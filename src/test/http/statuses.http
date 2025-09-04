@@ -1,0 +1,2 @@
+### get status
+GET {{baseUrl}}/api/v1/statuses
