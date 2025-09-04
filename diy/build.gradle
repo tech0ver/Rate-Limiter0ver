@@ -5,12 +5,22 @@ plugins {
 group 'io.github.tech0ver'
 version 'DEMO'
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 repositories {
     mavenCentral()
 }
 
+ext {
+    junitVersion = '5.12.2'
+}
+
 dependencies {
-    testImplementation(platform('org.junit:junit-bom:5.13.4'))
+    testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
     testImplementation('org.junit.jupiter:junit-jupiter')
     testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
