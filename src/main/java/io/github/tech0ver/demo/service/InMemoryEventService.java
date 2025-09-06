@@ -24,17 +24,6 @@ public class InMemoryEventService implements EventService {
         );
     }
 
-    @PostConstruct
-    void fillEvents() {
-        //TODO: Migrations?
-        Instant today = Instant.parse("2025-08-31T00:00:00Z");
-        Instant yesterday = today.minus(1, ChronoUnit.DAYS);
-        Instant tomorrow = today.plus(1, ChronoUnit.DAYS);
-        events.add(new Event("yesterday", yesterday));
-        events.add(new Event("today", today));
-        events.add(new Event("tomorrow", tomorrow));
-    }
-
     @Override
     public List<Event> search(EventSearchCondition condition) {
         Instant from = condition.from() != null ? condition.from() : Instant.MIN;
