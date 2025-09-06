@@ -1,0 +1,8 @@
+### create job
+POST {{baseUrl}}/api/v1/exports
+
+### get job
+GET {{baseUrl}}/api/v1/exports/0
+
+### get files
+GET {{baseUrl}}/api/v1/exports/0/files
