@@ -139,14 +139,14 @@ public abstract class SlidingWindowCounterRateLimiter implements MyRateLimiter {
             //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (window) {
                 // Different windows?
-                if (currentWindowStartNanos != window.startNanos) {
+                if (currentWindowStartNanos > window.startNanos) {
                     // Shift window
                     long windowsPassed = (currentWindowStartNanos - window.startNanos) / windowSizeNanos;
                     window.previousCount = windowsPassed == 1 ? window.currentCount : 0;
                     window.currentCount = 0;
                     window.startNanos = currentWindowStartNanos;
                 }
-                double currentWindowElapsedNanos = nowNanos - currentWindowStartNanos;
+                double currentWindowElapsedNanos = nowNanos - window.startNanos;
                 double previousWindowRatio = 1.0 - currentWindowElapsedNanos / windowSizeNanos;
                 double slidingCount = (window.previousCount * previousWindowRatio) + window.currentCount;
                 if (slidingCount < limit) {
