@@ -34,7 +34,7 @@ public class SlidingWindowLogRateLimiter implements MyRateLimiter {
 
     // O(L) where L is the limit
     @Override
-    public boolean isAllowed(String resource) {
+    public Decision decide(String resource) {
         Objects.requireNonNull(resource, "No resource");
         long nowNanos = watch.currentTimeNanos();
         // Get or create logs
@@ -48,9 +48,10 @@ public class SlidingWindowLogRateLimiter implements MyRateLimiter {
             // Logs not filled?
             if (logs.size() < limit) {
                 logs.addLast(nowNanos);
-                return true;
+                return Decision.fromNanos(true, 0L);
             }
-            return false;
+            long remainingNanos = windowSizeNanos - (nowNanos - logs.getFirst());
+            return Decision.fromNanos(false, Math.max(remainingNanos, 0L));
         }
     }
 

@@ -37,7 +37,7 @@ public class TokenBucketRateLimiter implements MyRateLimiter {
 
     // O(1)
     @Override
-    public boolean isAllowed(String resource) {
+    public Decision decide(String resource) {
         Objects.requireNonNull(resource, "No resource");
         long nowNanos = watch.currentTimeNanos();
         Bucket bucket = bucketByResource.computeIfAbsent(
@@ -53,9 +53,11 @@ public class TokenBucketRateLimiter implements MyRateLimiter {
             }
             if (bucket.tokens >= 1.0) {
                 bucket.tokens -= 1.0;
-                return true;
+                return Decision.fromNanos(true, 0L);
             }
-            return false;
+            double missingTokens = 1.0 - bucket.tokens;
+            long remainingNanos = (long) Math.ceil(missingTokens / tokensPerNano);
+            return Decision.fromNanos(false, Math.max(remainingNanos, 0L));
         }
     }
 

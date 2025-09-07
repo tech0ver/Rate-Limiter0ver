@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -275,6 +276,43 @@ class SlidingWindowLogRateLimiterTest {
             }
             watch.advance(window.toNanos() / numberOfBuckets);
         }
+    }
+
+    @Test
+    void should_decide() {
+        int limit = 2;
+        var window = Duration.ofSeconds(1);
+        var watch = new MockWatch();
+        var limiter = new SlidingWindowLogRateLimiter(limit, window, watch);
+        // 0.000
+        var decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        // 0.700
+        watch.advance(Duration.ofMillis(700).toNanos());
+        decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        // 1.000
+        watch.advance(Duration.ofMillis(300).toNanos());
+        decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        // 1.300
+        watch.advance(Duration.ofMillis(300).toNanos());
+        decision = limiter.decide("r1");
+        assertFalse(decision.isAllowed());
+        assertEquals(Duration.ofMillis(400), decision.retryAfter());
+        // 1.700
+        watch.advance(Duration.ofMillis(400).toNanos());
+        decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        // 1.800
+        watch.advance(Duration.ofMillis(100).toNanos());
+        decision = limiter.decide("r1");
+        assertFalse(decision.isAllowed());
+        assertEquals(Duration.ofMillis(200), decision.retryAfter());
     }
 
 }

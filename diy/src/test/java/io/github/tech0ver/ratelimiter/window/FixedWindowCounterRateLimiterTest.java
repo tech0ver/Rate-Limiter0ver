@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -244,6 +245,39 @@ class FixedWindowCounterRateLimiterTest {
             }
             watch.advance(window.toNanos() / numberOfBuckets);
         }
+    }
+
+    @Test
+    void should_decide() {
+        int limit = 1;
+        var window = Duration.ofSeconds(1);
+        var watch = new MockWatch();
+        var limiter = new FixedWindowCounterRateLimiter(limit, window, watch);
+        // 0.000
+        var decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        decision = limiter.decide("r1");
+        assertFalse(decision.isAllowed());
+        assertEquals(Duration.ofSeconds(1), decision.retryAfter());
+        // 0.500
+        watch.advance(Duration.ofMillis(500));
+        decision = limiter.decide("r1");
+        assertFalse(decision.isAllowed());
+        assertEquals(Duration.ofMillis(500), decision.retryAfter());
+        // 1.000
+        watch.advance(Duration.ofMillis(500));
+        decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        decision = limiter.decide("r1");
+        assertFalse(decision.isAllowed());
+        assertEquals(Duration.ofSeconds(1), decision.retryAfter());
+        // 1.300
+        watch.advance(Duration.ofMillis(300));
+        decision = limiter.decide("r1");
+        assertFalse(decision.isAllowed());
+        assertEquals(Duration.ofMillis(700), decision.retryAfter());
     }
 
 }

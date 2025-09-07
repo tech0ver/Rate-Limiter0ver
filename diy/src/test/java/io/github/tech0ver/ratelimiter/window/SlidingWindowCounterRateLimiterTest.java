@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -279,6 +280,44 @@ class SlidingWindowCounterRateLimiterTest {
                 }
                 watch.advance(window.toNanos() / numberOfBuckets);
             }
+        }
+
+        @Test
+        void should_decide() {
+            int limit = 2;
+            var window = Duration.ofSeconds(1);
+            var watch = new MockWatch();
+            int numberOfBuckets = 2;
+            var limiter = SlidingWindowCounterRateLimiter.createBucketed(limit, window, numberOfBuckets, watch);
+            // 0.000
+            var decision = limiter.decide("r1");
+            assertTrue(decision.isAllowed());
+            assertEquals(Duration.ZERO, decision.retryAfter()); // 0.000
+            // 0.500
+            watch.advance(Duration.ofMillis(500));
+            decision = limiter.decide("r1");
+            assertTrue(decision.isAllowed());
+            assertEquals(Duration.ZERO, decision.retryAfter());
+            // 0.750
+            watch.advance(Duration.ofMillis(250));
+            decision = limiter.decide("r1");
+            assertFalse(decision.isAllowed());
+            assertEquals(Duration.ofMillis(250), decision.retryAfter());
+            // 1.000
+            watch.advance(Duration.ofMillis(250));
+            decision = limiter.decide("r1");
+            assertTrue(decision.isAllowed());
+            assertEquals(Duration.ZERO, decision.retryAfter());
+            // 1.250
+            watch.advance(Duration.ofMillis(250));
+            decision = limiter.decide("r1");
+            assertFalse(decision.isAllowed());
+            assertEquals(Duration.ofMillis(250), decision.retryAfter());
+            // 1.500
+            watch.advance(Duration.ofMillis(250));
+            decision = limiter.decide("r1");
+            assertTrue(decision.isAllowed());
+            assertEquals(Duration.ZERO, decision.retryAfter());
         }
 
     }
@@ -573,6 +612,53 @@ class SlidingWindowCounterRateLimiterTest {
                 }
                 watch.advance(window.toNanos() / numberOfBuckets);
             }
+        }
+
+        @Test
+        void should_decide() {
+            int limit = 2;
+            var window = Duration.ofSeconds(1);
+            var watch = new MockWatch();
+            var limiter = SlidingWindowCounterRateLimiter.createLinearInterpolated(limit, window, watch);
+            // 0.000
+            var decision = limiter.decide("r1");
+            assertTrue(decision.isAllowed());
+            assertEquals(Duration.ZERO, decision.retryAfter());
+            // 0.300
+            watch.advance(Duration.ofMillis(300));
+            decision = limiter.decide("r1");
+            assertTrue(decision.isAllowed());
+            assertEquals(Duration.ZERO, decision.retryAfter());
+            // 0.600
+            watch.advance(Duration.ofMillis(300));
+            decision = limiter.decide("r1");
+            assertFalse(decision.isAllowed());
+            assertEquals(Duration.ofMillis(400), decision.retryAfter());
+            // 0.900
+            watch.advance(Duration.ofMillis(300));
+            decision = limiter.decide("r1");
+            assertFalse(decision.isAllowed());
+            assertEquals(Duration.ofMillis(100), decision.retryAfter());
+            // 1.200
+            watch.advance(Duration.ofMillis(300));
+            decision = limiter.decide("r1");
+            assertTrue(decision.isAllowed());
+            assertEquals(Duration.ZERO, decision.retryAfter());
+            // 1.400
+            watch.advance(Duration.ofMillis(200));
+            decision = limiter.decide("r1");
+            assertFalse(decision.isAllowed());
+            assertEquals(Duration.ofMillis(100).plusNanos(1), decision.retryAfter());
+            // 1.500
+            watch.advance(Duration.ofMillis(100));
+            decision = limiter.decide("r1");
+            assertFalse(decision.isAllowed());
+            assertEquals(Duration.ofNanos(1), decision.retryAfter());
+            // 1.500 + 1 nano
+            watch.advance(Duration.ofNanos(1));
+            decision = limiter.decide("r1");
+            assertTrue(decision.isAllowed());
+            assertEquals(Duration.ZERO, decision.retryAfter());
         }
 
     }

@@ -47,9 +47,6 @@ public abstract class SlidingWindowCounterRateLimiter implements MyRateLimiter {
         return new LinearInterpolatedCounter(limit, windowSize, watch);
     }
 
-    @Override
-    public abstract boolean isAllowed(String resource);
-
     /**
      * Based on buckets.
      */
@@ -70,7 +67,7 @@ public abstract class SlidingWindowCounterRateLimiter implements MyRateLimiter {
 
         // O(B) where B is the number of buckets
         @Override
-        public boolean isAllowed(String resource) {
+        public Decision decide(String resource) {
             Objects.requireNonNull(resource, "No resource");
             long nowNanos = watch.currentTimeNanos();
             // Get or create bucket
@@ -85,17 +82,22 @@ public abstract class SlidingWindowCounterRateLimiter implements MyRateLimiter {
                     window.timestamps[bucketIndex] = bucketStartNanos;
                 }
                 long totalCount = 0;
+                int earliestExpiryBucketIndex = bucketIndex;
                 for (int i = 0; i < numberOfBuckets; i++) {
                     // Is a bucket in the current window?
-                    if (nowNanos - window.timestamps[i] < windowSizeNanos) {
+                    if (nowNanos - window.timestamps[i] < windowSizeNanos && window.counts[i] > 0) {
                         totalCount += window.counts[i];
+                        if (window.timestamps[i] < window.timestamps[earliestExpiryBucketIndex]) {
+                            earliestExpiryBucketIndex = i;
+                        }
                     }
                 }
                 if (totalCount < limit) {
                     window.counts[bucketIndex]++;
-                    return true;
+                    return Decision.fromNanos(true, 0L);
                 }
-                return false;
+                long remainingNanos = windowSizeNanos - (nowNanos - window.timestamps[earliestExpiryBucketIndex]);
+                return Decision.fromNanos(false, Math.max(remainingNanos, 0L));
             }
         }
 
@@ -130,7 +132,7 @@ public abstract class SlidingWindowCounterRateLimiter implements MyRateLimiter {
 
         // O(1)
         @Override
-        public boolean isAllowed(String resource) {
+        public Decision decide(String resource) {
             Objects.requireNonNull(resource, "No resource");
             long nowNanos = watch.currentTimeNanos();
             long currentWindowStartNanos = nowNanos - (nowNanos % windowSizeNanos);
@@ -155,9 +157,17 @@ public abstract class SlidingWindowCounterRateLimiter implements MyRateLimiter {
                 long limitNanos = limit * windowSizeNanos;
                 if (slidingNanos < limitNanos) {
                     window.currentCount++;
-                    return true;
+                    return Decision.fromNanos(true, 0L);
                 }
-                return false;
+                long remainingNanos;
+                if (window.previousCount > 0) {
+                    long overflowNanos = slidingNanos - limitNanos;
+                    long waitNanos = (overflowNanos / window.previousCount) + 1;
+                    remainingNanos = Math.min(waitNanos, currentWindowRemainingNanos);
+                } else {
+                    remainingNanos = currentWindowRemainingNanos;
+                }
+                return Decision.fromNanos(false, Math.max(remainingNanos, 0L));
             }
         }
 

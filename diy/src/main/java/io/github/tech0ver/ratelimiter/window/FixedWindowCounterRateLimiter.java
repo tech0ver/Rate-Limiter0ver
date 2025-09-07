@@ -23,7 +23,7 @@ public class FixedWindowCounterRateLimiter implements MyRateLimiter {
     }
 
     public FixedWindowCounterRateLimiter(long limit, Duration windowSize, MyWatch watch) {
-        if (limit <= 0) throw new IllegalArgumentException("limit must be > 0");
+        if (limit <= 0L) throw new IllegalArgumentException("limit must be > 0");
         Objects.requireNonNull(windowSize, "No windowSize");
         Objects.requireNonNull(watch, "No watch");
         this.watch = watch;
@@ -35,7 +35,7 @@ public class FixedWindowCounterRateLimiter implements MyRateLimiter {
 
     // O(1)
     @Override
-    public boolean isAllowed(String resource) {
+    public Decision decide(String resource) {
         Objects.requireNonNull(resource, "No resource");
         long nowNanos = watch.currentTimeNanos();
         // Has the current window expired?
@@ -50,8 +50,13 @@ public class FixedWindowCounterRateLimiter implements MyRateLimiter {
             }
         }
         // Get or create counter
-        AtomicLong counter = counterByResource.computeIfAbsent(resource, k -> new AtomicLong(0));
-        return counter.incrementAndGet() <= limit;
+        AtomicLong counter = counterByResource.computeIfAbsent(resource, k -> new AtomicLong(0L));
+        long count = counter.incrementAndGet();
+        if (count <= limit) {
+            return Decision.fromNanos(true, 0L);
+        }
+        long remainingNanos = windowSizeNanos - (nowNanos - windowStartNanos);
+        return Decision.fromNanos(false, Math.max(remainingNanos, 0L));
     }
 
 }

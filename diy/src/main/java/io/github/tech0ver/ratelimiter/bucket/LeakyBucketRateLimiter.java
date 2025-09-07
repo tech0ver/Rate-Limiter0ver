@@ -33,7 +33,7 @@ public class LeakyBucketRateLimiter implements MyRateLimiter {
 
     // O(1)
     @Override
-    public boolean isAllowed(String resource) {
+    public Decision decide(String resource) {
         Objects.requireNonNull(resource, "No resource");
         long nowNanos = watch.currentTimeNanos();
         Bucket bucket = bucketByResource.computeIfAbsent(resource, k -> new Bucket(nowNanos));
@@ -47,9 +47,11 @@ public class LeakyBucketRateLimiter implements MyRateLimiter {
             }
             if (bucket.level + 1.0 <= capacity) {
                 bucket.level += 1.0;
-                return true;
+                return Decision.fromNanos(true, 0L);
             }
-            return false;
+            double overflow = bucket.level + 1.0 - capacity;
+            long remainingNanos = (long) Math.ceil(overflow / leakPerNano);
+            return Decision.fromNanos(false, Math.max(remainingNanos, 0L));
         }
     }
 

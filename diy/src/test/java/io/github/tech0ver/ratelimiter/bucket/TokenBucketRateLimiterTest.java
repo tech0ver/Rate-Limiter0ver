@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -72,6 +73,49 @@ class TokenBucketRateLimiterTest {
         assertFalse(limiter.isAllowed("r1"));
         watch.advance(timeShift);
         // 2.500 ...
+    }
+
+    @Test
+    void should_decide() {
+        int capacity = 2;
+        int refillTokens = 2;
+        Duration refillPeriod = Duration.ofSeconds(1);
+        MockWatch watch = new MockWatch();
+        var limiter = new TokenBucketRateLimiter(capacity, refillTokens, refillPeriod, watch);
+        // 0.000
+        var decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        // 0.250
+        watch.advance(Duration.ofMillis(250));
+        decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        // 0.500
+        watch.advance(Duration.ofMillis(250));
+        decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        // 0.600
+        watch.advance(Duration.ofMillis(100));
+        decision = limiter.decide("r1");
+        assertFalse(decision.isAllowed());
+        assertEquals(Duration.ofMillis(400), decision.retryAfter());
+        // 0.900
+        watch.advance(Duration.ofMillis(300));
+        decision = limiter.decide("r1");
+        assertFalse(decision.isAllowed());
+        assertEquals(Duration.ofMillis(100), decision.retryAfter());
+        // 1.000
+        watch.advance(Duration.ofMillis(100));
+        decision = limiter.decide("r1");
+        assertTrue(decision.isAllowed());
+        assertEquals(Duration.ZERO, decision.retryAfter());
+        // 1.100
+        watch.advance(Duration.ofMillis(100));
+        decision = limiter.decide("r1");
+        assertFalse(decision.isAllowed());
+        assertEquals(Duration.ofMillis(400), decision.retryAfter());
     }
 
 }
