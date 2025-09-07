@@ -1,5 +1,6 @@
 package io.github.tech0ver.ratelimiter;
 
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MockWatch implements MyWatch {
@@ -12,6 +13,10 @@ public class MockWatch implements MyWatch {
 
     public void advance(long deltaNanos) {
         timeNanos.addAndGet(deltaNanos);
+    }
+
+    public void advance(Duration delta) {
+        advance(delta.toNanos());
     }
 
     @Override
