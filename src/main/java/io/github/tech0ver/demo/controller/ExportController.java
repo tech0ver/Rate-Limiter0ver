@@ -1,5 +1,6 @@
 package io.github.tech0ver.demo.controller;
 
+import io.github.tech0ver.demo.annotation.ValidApiKey;
 import io.github.tech0ver.demo.domain.ExportJob;
 import io.github.tech0ver.demo.exception.JobFailedException;
 import io.github.tech0ver.demo.exception.JobNotFoundException;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -36,8 +38,10 @@ public class ExportController {
     private final ExportJobResponseMapper exportJobResponseMapper;
 
     @PostMapping
-    public ResponseEntity<?> createJob() {
-        long jobId = exportService.createJob();
+    public ResponseEntity<?> createJob(
+            @RequestHeader("X-API-Key") @ValidApiKey String apiKey
+    ) {
+        long jobId = exportService.createJob(apiKey);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{jobId}")
@@ -50,16 +54,22 @@ public class ExportController {
     }
 
     @GetMapping("/{jobId}")
-    public ResponseEntity<?> getJob(@PathVariable long jobId) throws JobNotFoundException {
-        ExportJob.Snapshot job = exportService.getJobSnapshot(jobId);
+    public ResponseEntity<?> getJob(
+            @RequestHeader("X-API-Key") @ValidApiKey String apiKey,
+            @PathVariable long jobId
+    ) throws JobNotFoundException {
+        ExportJob.Snapshot job = exportService.getJobSnapshot(apiKey, jobId);
         ExportJobResponse response = exportJobResponseMapper.mapDomain2Response(job);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{jobId}/files")
-    public ResponseEntity<?> getJobFiles(@PathVariable long jobId) throws JobNotFoundException {
+    public ResponseEntity<?> getJobFiles(
+            @RequestHeader("X-API-Key") @ValidApiKey String apiKey,
+            @PathVariable long jobId
+    ) throws JobNotFoundException {
         try {
-            ExportJob.File file = exportService.getJobFile(jobId);
+            ExportJob.File file = exportService.getJobFile(apiKey, jobId);
             Path path = file.path();
             String baseName = path.getFileName().toString();
             String encoded = URLEncoder.encode(baseName, StandardCharsets.UTF_8);

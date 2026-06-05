@@ -7,10 +7,10 @@ import io.github.tech0ver.demo.exception.JobNotFoundException;
 
 public interface ExportService {
 
-    long createJob();
+    long createJob(String apiKey);
 
-    ExportJob.Snapshot getJobSnapshot(long jobId) throws JobNotFoundException;
+    ExportJob.Snapshot getJobSnapshot(String apiKey, long jobId) throws JobNotFoundException;
 
-    ExportJob.File getJobFile(long jobId) throws JobNotReadyException, JobFailedException, JobNotFoundException;
+    ExportJob.File getJobFile(String apiKey, long jobId) throws JobNotReadyException, JobFailedException, JobNotFoundException;
 
 }

@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface EventService {
 
-    List<Event> search(EventSearchCondition condition);
+    List<Event> search(String apiKey, EventSearchCondition condition);
 
-    void addAll(List<Event> newEvents);
+    void addAll(String apiKey, List<Event> newEvents);
+
 }

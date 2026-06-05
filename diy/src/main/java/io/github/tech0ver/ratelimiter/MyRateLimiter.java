@@ -1,40 +1,53 @@
 package io.github.tech0ver.ratelimiter;
 
 import java.time.Duration;
+import java.util.Optional;
 
 public interface MyRateLimiter {
 
-    default boolean isAllowed(String resource) {
-        return decide(resource).isAllowed();
-    }
+    Decision tryPermit();
 
-    Decision decide(String resource);
+    default boolean isGranted() {
+        return tryPermit().granted();
+    }
 
     interface Decision {
 
-        static Decision fromNanos(boolean allowed, long retryAfterNanos) {
-            if (retryAfterNanos < 0) throw new IllegalArgumentException("retryAfterNanos must be >= 0");
+        static Decision asGranted(long remaining) {
+            Requires.positiveOrZero(remaining, "remaining must be >= 0");
             return new Decision() {
 
-                @Override
-                public boolean isAllowed() {
-                    return allowed;
-                }
+                @Override public boolean granted() { return true; }
 
-                @Override
-                public long retryAfterNanos() {
-                    return retryAfterNanos;
-                }
+                @Override public long remaining() { return remaining; }
 
             };
         }
 
-        boolean isAllowed();
+        static Decision asDenied(long retryAfterNanos) {
+            Requires.positiveOrZero(retryAfterNanos, "retryAfterNanos must be >= 0");
+            Duration retryAfter = Duration.ofNanos(retryAfterNanos);
+            return new Decision() {
 
-        long retryAfterNanos();
+                @Override public boolean granted() { return false; }
 
-        default Duration retryAfter() {
-            return Duration.ofNanos(retryAfterNanos());
+                @Override public Optional<Duration> retryAfter() { return Optional.of(retryAfter); }
+
+            };
+        }
+
+        boolean granted();
+
+        default long remaining() {
+            return 0L;
+        }
+
+        default boolean denied() {
+            return !granted();
+        }
+
+        default Optional<Duration> retryAfter() {
+            return Optional.empty();
         }
 
     }

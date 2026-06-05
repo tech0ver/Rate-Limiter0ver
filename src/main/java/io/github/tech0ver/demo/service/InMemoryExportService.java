@@ -30,22 +30,23 @@ public class InMemoryExportService implements ExportService {
     private final Clock clock;
     private final Executor executor;
 
-    private final Map<Long, ExportJob> jobs = new ConcurrentHashMap<>();
-    private final AtomicLong counter = new AtomicLong();
+    private final Map<String, State> stateByApiKey = new ConcurrentHashMap<>();
+    private record State(Map<Long, ExportJob> jobs, AtomicLong counter) {}
 
     @Override
-    public long createJob() {
-        long jobId = counter.getAndIncrement();
+    public long createJob(String apiKey) {
+        State state = stateByApiKey.computeIfAbsent(apiKey, k -> new State(new ConcurrentHashMap<>(), new AtomicLong()));
+        long jobId = state.counter.getAndIncrement();
         ExportJob job = new ExportJob(jobId, clock.instant());
-        jobs.put(jobId, job);
-        executor.execute(() -> processJob(job));
+        state.jobs.put(jobId, job);
+        executor.execute(() -> processJob(apiKey, job));
         return jobId;
     }
 
-    public void processJob(ExportJob job) {
+    public void processJob(String apiKey, ExportJob job) {
         EventSearchCondition condition = new EventSearchCondition(null, job.getCreatedAt());
         try {
-            List<Event> events = eventService.search(condition);
+            List<Event> events = eventService.search(apiKey, condition);
             try {
                 job.getLock().writeLock().lockInterruptibly();
                 job.setStatus(ExportJob.Status.PROCESSING);
@@ -84,15 +85,20 @@ public class InMemoryExportService implements ExportService {
         }
     }
 
-    private ExportJob getJob(long jobId) throws JobNotFoundException {
-        ExportJob job = jobs.get(jobId);
+    private ExportJob getJob(String apiKey, long jobId) throws JobNotFoundException {
+        ExportJob job = null;
+        State state = stateByApiKey.get(apiKey);
+        if (state != null) {
+            Map<Long, ExportJob> jobs = state.jobs;
+            if (jobs != null) job = jobs.get(jobId);
+        }
         if (job == null) throw new JobNotFoundException(jobId);
         return job;
     }
 
     @Override
-    public ExportJob.Snapshot getJobSnapshot(long jobId) throws JobNotFoundException {
-        ExportJob job = getJob(jobId);
+    public ExportJob.Snapshot getJobSnapshot(String apiKey, long jobId) throws JobNotFoundException {
+        ExportJob job = getJob(apiKey, jobId);
         try {
             job.getLock().readLock().lock();
             return job.asSnapshot();
@@ -102,8 +108,10 @@ public class InMemoryExportService implements ExportService {
     }
 
     @Override
-    public ExportJob.File getJobFile(long jobId) throws JobNotReadyException, JobFailedException, JobNotFoundException {
-        ExportJob job = getJob(jobId);
+    public ExportJob.File getJobFile(
+            String apiKey, long jobId
+    ) throws JobNotReadyException, JobFailedException, JobNotFoundException {
+        ExportJob job = getJob(apiKey, jobId);
         try {
             job.getLock().readLock().lock();
             ExportJob.Status status = job.getStatus();

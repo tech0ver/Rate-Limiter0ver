@@ -1,0 +1,35 @@
+rate-limit:
+  rules:
+    - pattern: /api/v1/statuses
+      methods: [ GET ]
+      ip: true
+      error-json: |-
+        {"error":"Too many requests for getting status."}
+      fixed-window:
+        limit: 2
+        window: PT30S
+    - pattern: /api/v1/events
+      methods: [ POST ]
+      header: X-API-Key
+      error-json: |-
+        {"error":"Too many requests for creating events."}
+      token-bucket:
+        capacity: 2
+        refill: PT30S
+        tokens: 1
+    - pattern: /api/v1/events
+      methods: [ GET ]
+      header: X-API-Key
+      error-json: |-
+        {"error":"Too many requests for searching events."}
+      sliding-linear:
+        limit: 2
+        window: PT30S
+    - pattern: /api/v1/exports
+      methods: [ POST ]
+      header: X-API-Key
+      error-json: |-
+        {"error":"Too many requests for creating export jobs."}
+      leaky-bucket:
+        capacity: 2
+        interval: PT30S

@@ -2,30 +2,29 @@ package io.github.tech0ver.demo.service;
 
 import io.github.tech0ver.demo.domain.Event;
 import io.github.tech0ver.demo.domain.EventSearchCondition;
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 @Service
 public class InMemoryEventService implements EventService {
 
-    private final NavigableSet<Event> events;
+    private final Map<String, NavigableSet<Event>> eventsByApiKey;
 
     public InMemoryEventService() {
-        this.events = new ConcurrentSkipListSet<>(
-                Comparator.comparing(Event::createdAt)
-                        .thenComparing(Event::value)
-        );
+        this.eventsByApiKey = new ConcurrentHashMap<>();
     }
 
     @Override
-    public List<Event> search(EventSearchCondition condition) {
+    public List<Event> search(String apiKey, EventSearchCondition condition) {
+        NavigableSet<Event> events = eventsByApiKey.get(apiKey);
+        if (events == null || events.isEmpty()) return List.of();
         Instant from = condition.from() != null ? condition.from() : Instant.MIN;
         Instant to = condition.to() != null ? condition.to() : Instant.MAX;
         return events.subSet(
@@ -37,8 +36,10 @@ public class InMemoryEventService implements EventService {
     }
 
     @Override
-    public void addAll(List<Event> newEvents) {
-        events.addAll(newEvents);
+    public void addAll(String apiKey, List<Event> newEvents) {
+        eventsByApiKey.computeIfAbsent(apiKey, k -> new ConcurrentSkipListSet<>(
+                Comparator.comparing(Event::createdAt).thenComparing(Event::value))
+        ).addAll(newEvents);
     }
 
 }
