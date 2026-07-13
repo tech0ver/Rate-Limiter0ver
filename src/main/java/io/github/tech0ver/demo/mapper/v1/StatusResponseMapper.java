@@ -1,8 +1,9 @@
-package io.github.tech0ver.demo.mapper;
+package io.github.tech0ver.demo.mapper.v1;
 
 import io.github.tech0ver.demo.config.SpringMapStructConfig;
 import io.github.tech0ver.demo.domain.Status;
-import io.github.tech0ver.demo.payload.StatusResponse;
+import io.github.tech0ver.demo.mapper.ResponseMapper;
+import io.github.tech0ver.demo.payload.v1.StatusResponse;
 import org.mapstruct.Mapper;
 
 @Mapper(config = SpringMapStructConfig.class)

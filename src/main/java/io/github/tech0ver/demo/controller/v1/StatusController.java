@@ -1,8 +1,8 @@
-package io.github.tech0ver.demo.controller;
+package io.github.tech0ver.demo.controller.v1;
 
 import io.github.tech0ver.demo.domain.Status;
-import io.github.tech0ver.demo.mapper.StatusResponseMapper;
-import io.github.tech0ver.demo.payload.StatusResponse;
+import io.github.tech0ver.demo.mapper.v1.StatusResponseMapper;
+import io.github.tech0ver.demo.payload.v1.StatusResponse;
 import io.github.tech0ver.demo.service.StatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
