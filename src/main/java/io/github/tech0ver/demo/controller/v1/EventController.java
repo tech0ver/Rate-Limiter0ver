@@ -1,11 +1,11 @@
-package io.github.tech0ver.demo.controller;
+package io.github.tech0ver.demo.controller.v1;
 
 import io.github.tech0ver.demo.domain.Event;
 import io.github.tech0ver.demo.domain.EventSearchCondition;
-import io.github.tech0ver.demo.mapper.EventRequestMapper;
-import io.github.tech0ver.demo.mapper.EventResponseMapper;
-import io.github.tech0ver.demo.payload.EventResponse;
-import io.github.tech0ver.demo.payload.NewEventRequest;
+import io.github.tech0ver.demo.mapper.v1.EventRequestMapper;
+import io.github.tech0ver.demo.mapper.v1.EventResponseMapper;
+import io.github.tech0ver.demo.payload.v1.EventResponse;
+import io.github.tech0ver.demo.payload.v1.NewEventRequest;
 import io.github.tech0ver.demo.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

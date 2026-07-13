@@ -1,8 +1,8 @@
-package io.github.tech0ver.demo.payload;
+package io.github.tech0ver.demo.payload.v1;
 
 import java.time.Instant;
 
-public record EventResponse(
+public record NewEventRequest(
         String value,
         Instant createdAt
 ) {
