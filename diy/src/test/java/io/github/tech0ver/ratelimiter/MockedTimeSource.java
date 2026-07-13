@@ -3,12 +3,12 @@ package io.github.tech0ver.ratelimiter;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MockWatch implements MyWatch {
+public class MockedTimeSource implements TimeSource {
 
     private final AtomicLong timeNanos;
 
-    public MockWatch() {
-        timeNanos = new AtomicLong(0);
+    public MockedTimeSource() {
+        timeNanos = new AtomicLong();
     }
 
     public void advance(long deltaNanos) {
@@ -22,6 +22,11 @@ public class MockWatch implements MyWatch {
     @Override
     public long currentTimeNanos() {
         return timeNanos.get();
+    }
+
+    @Override
+    public String toString() {
+        return "MockedTimeSource[" + timeNanos.get() + "]";
     }
 
 }
