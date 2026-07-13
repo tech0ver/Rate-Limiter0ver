@@ -1,9 +1,10 @@
-package io.github.tech0ver.ratelimiter.bucket;
+package io.github.tech0ver.ratelimiter.bucket.leaky;
 
 import io.github.tech0ver.ratelimiter.MyBlockingRateLimiter;
 import io.github.tech0ver.ratelimiter.Requires;
 import io.github.tech0ver.ratelimiter.ThreadParker;
 import io.github.tech0ver.ratelimiter.TimeSource;
+import io.github.tech0ver.ratelimiter.bucket.BlockingBucketConfig;
 
 import java.time.Duration;
 

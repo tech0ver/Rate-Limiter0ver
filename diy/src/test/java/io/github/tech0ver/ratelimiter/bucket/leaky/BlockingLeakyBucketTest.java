@@ -2,7 +2,6 @@ package io.github.tech0ver.ratelimiter.bucket.leaky;
 
 import io.github.tech0ver.ratelimiter.MockedThreadParker;
 import io.github.tech0ver.ratelimiter.MockedTimeSource;
-import io.github.tech0ver.ratelimiter.bucket.BaseBlockingLeakyBucket;
 import io.github.tech0ver.ratelimiter.bucket.BlockingBucketConfig;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
