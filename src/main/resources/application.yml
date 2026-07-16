@@ -9,4 +9,4 @@ management:
 
 spring:
   application:
-    name: demo-analytics
+    name: events-service
