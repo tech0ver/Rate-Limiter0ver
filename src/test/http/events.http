@@ -1,6 +1,7 @@
 ### create new
 POST {{baseUrl}}/api/v1/events
 Content-Type: application/json
+X-API-Key: {{apiKey}}
 
 [
   {
@@ -17,11 +18,52 @@ Content-Type: application/json
   }
 ]
 
+> {%
+    client.test("Create events returns 201", function () {
+        client.assert(response.status === 201, "Expected 201");
+    });
+%}
+
 ### get all
 GET {{baseUrl}}/api/v1/events
+X-API-Key: {{apiKey}}
+
+> {%
+    client.test("Get all events returns 200", function () {
+        client.assert(response.status === 200, "Expected 200");
+    });
+
+    client.test("Returns 3 events", function () {
+        client.assert(response.body.length === 3, "Expected 3 events");
+    });
+%}
 
 ### get today-tomorrow
 GET {{baseUrl}}/api/v1/events?from=2025-08-31T00:00:00Z
+X-API-Key: {{apiKey}}
+
+> {%
+    client.test("Filter from date", function () {
+        client.assert(response.status === 200);
+
+        client.assert(
+            response.body.every(e => e.createdAt >= "2025-08-31T00:00:00Z"),
+            "All events should be after from date"
+        );
+    });
+%}
 
 ### get yesterday-today
 GET {{baseUrl}}/api/v1/events?to=2025-09-01T00:00:00Z
+X-API-Key: {{apiKey}}
+
+> {%
+    client.test("Filter to date", function () {
+        client.assert(response.status === 200);
+
+        client.assert(
+            response.body.every(e => e.createdAt < "2025-09-01T00:00:00Z"),
+            "All events should be before to date"
+        );
+    });
+%}

@@ -1,2 +1,13 @@
 ### get status
 GET {{baseUrl}}/api/v1/statuses
+
+> {%
+    client.test("Get status returns 200", function () {
+        client.assert(response.status === 200, "Expected 200");
+    });
+
+    client.test("Returns now and uptimeSeconds", function () {
+        client.assert(response.body.hasOwnProperty("now"), "Expected now");
+        client.assert(response.body.hasOwnProperty("uptimeSeconds"), "Expected uptimeSeconds");
+    });
+%}

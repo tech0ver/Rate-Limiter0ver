@@ -1,8 +1,42 @@
 ### create job
 POST {{baseUrl}}/api/v1/exports
+X-API-Key: {{apiKey}}
+
+> {%
+    client.test("Create job returns 202", function () {
+        client.assert(response.status === 202, "Expected 202");
+    });
+%}
 
 ### get job
 GET {{baseUrl}}/api/v1/exports/0
+X-API-Key: {{apiKey}}
+
+> {%
+    client.test("Get job returns 200", function () {
+        client.assert(response.status === 200, "Expected 200");
+    });
+
+    client.test("Returns 3 events", function () {
+        client.assert(response.body.hasOwnProperty("id"), "Expected id");
+        client.assert(response.body.hasOwnProperty("createdAt"), "Expected createdAt");
+        client.assert(response.body.hasOwnProperty("modifiedAt"), "Expected modifiedAt");
+        client.assert(response.body.hasOwnProperty("status"), "Expected status");
+        client.assert(response.body.hasOwnProperty("message"), "Expected message");
+    });
+%}
 
 ### get files
 GET {{baseUrl}}/api/v1/exports/0/files
+X-API-Key: {{apiKey}}
+
+> {%
+    client.test("Get files returns 200", function () {
+        client.assert(response.status === 200, "Expected 200");
+    });
+
+    client.test("Returns 3 events", function () {
+        client.assert(response.headers.valueOf("Content-Type") == "text/csv;charset=utf-8", "Expected csv");
+        client.assert(response.headers.valueOf("Content-Length") > 0, "Expected length > 0");
+    });
+%}
