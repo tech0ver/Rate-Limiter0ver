@@ -26,6 +26,9 @@ repositories {
 ext {
     mapstructVersion = '1.6.3'
     apacheCommonsCsvVersion = '1.11.0'
+    bucket4jVersion = '8.15.0'
+    guavaVersion = '33.4.8-jre'
+    resilience4jVersion = '2.3.0'
 }
 
 dependencies {
@@ -34,6 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
@@ -44,6 +48,8 @@ dependencies {
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
     implementation "org.apache.commons:commons-csv:${apacheCommonsCsvVersion}"
+
+    implementation "com.bucket4j:bucket4j_jdk17-core:${bucket4jVersion}"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
