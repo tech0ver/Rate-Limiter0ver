@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="EventsApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+    <module name="Rate-Limiter0ver.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.tech0ver.EventsApplication" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="io.github.tech0ver.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
