@@ -15,5 +15,5 @@ import org.mapstruct.SubclassExhaustiveStrategy;
         subclassExhaustiveStrategy = SubclassExhaustiveStrategy.RUNTIME_EXCEPTION,
         builder = @Builder(disableBuilder = true)
 )
-public class SpringMapStructConfig {
+public class MapStructConfig {
 }
