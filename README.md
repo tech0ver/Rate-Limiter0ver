@@ -6,13 +6,13 @@
 
 #### Token Bucket
 
-[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/bucket/TokenBucketRateLimiter.java).
+[See implementation](diy/src/main/java/io/github/tech0ver/myratelimiter/bucket/TokenBucketRateLimiter.java).
 
 <img alt="token-bucket" src="images/token-bucket.png" width="600"/>
 
 #### Leaky Bucket
 
-[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/bucket/LeakyBucketBlockingRateLimiter.java).
+[See implementation](diy/src/main/java/io/github/tech0ver/myratelimiter/bucket/LeakyBucketBlockingRateLimiter.java).
 
 <img alt="leaky-bucket" src="images/leaky-bucket.png" width="600"/>
 
@@ -20,19 +20,19 @@
 
 #### Fixed Window Counter
 
-[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/window/FixedWindowCounterRateLimiter.java).
+[See implementation](diy/src/main/java/io/github/tech0ver/myratelimiter/window/FixedWindowCounterRateLimiter.java).
 
 <img alt="fixed-window-counter" src="images/fixed-window-counter.png" width="600"/>
 
 #### Sliding Window Log
 
-[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/window/SlidingWindowLogRateLimiter.java).
+[See implementation](diy/src/main/java/io/github/tech0ver/myratelimiter/window/SlidingWindowLogRateLimiter.java).
 
 <img alt="sliding-window-log" src="images/sliding-window-log.png" width="600"/>
 
 #### Sliding Window Counter
 
-[See implementation](diy/src/main/java/io/github/tech0ver/ratelimiter/window/SlidingWindowCounterRateLimiter.java).
+[See implementation](diy/src/main/java/io/github/tech0ver/myratelimiter/window/SlidingWindowCounterRateLimiter.java).
 
 ##### Based on buckets
 
