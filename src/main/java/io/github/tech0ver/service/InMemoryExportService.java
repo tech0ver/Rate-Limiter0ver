@@ -1,20 +1,14 @@
 package io.github.tech0ver.service;
 
-import io.github.tech0ver.domain.Event;
-import io.github.tech0ver.domain.EventSearchCondition;
 import io.github.tech0ver.domain.ExportJob;
 import io.github.tech0ver.exception.JobFailedException;
 import io.github.tech0ver.exception.JobNotFoundException;
 import io.github.tech0ver.exception.JobNotReadyException;
-import io.github.tech0ver.exporter.EventFileExporter;
+import io.github.tech0ver.exporter.EventExportJobWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Clock;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -24,8 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @RequiredArgsConstructor
 public class InMemoryExportService implements ExportService {
 
-    private final EventService eventService;
-    private final EventFileExporter eventFileExporter;
+    private final EventExportJobWorker eventExportJobWorker;
 
     private final Clock clock;
     private final Executor executor;
@@ -39,50 +32,8 @@ public class InMemoryExportService implements ExportService {
         long jobId = state.counter.getAndIncrement();
         ExportJob job = new ExportJob(jobId, clock.instant());
         state.jobs.put(jobId, job);
-        executor.execute(() -> processJob(apiKey, job));
+        executor.execute(() -> eventExportJobWorker.processJob(apiKey, job));
         return jobId;
-    }
-
-    public void processJob(String apiKey, ExportJob job) {
-        EventSearchCondition condition = new EventSearchCondition(null, job.getCreatedAt());
-        try {
-            List<Event> events = eventService.search(apiKey, condition);
-            try {
-                job.getLock().writeLock().lockInterruptibly();
-                job.setStatus(ExportJob.Status.PROCESSING);
-                job.setMessage("Started processing events: " + events.size());
-                job.setModifiedAt(clock.instant());
-            } finally {
-                job.getLock().writeLock().unlock();
-            }
-            Path file = eventFileExporter.exportFile("job-" + job.getId(), events);
-            try {
-                job.getLock().writeLock().lockInterruptibly();
-                job.setStatus(ExportJob.Status.PROCESSED);
-                job.setMessage("Processed events: " + events.size());
-                job.setMediaType(eventFileExporter.getMediaType());
-                job.setFile(file);
-                long size;
-                try {
-                    size = Files.size(file);
-                } catch (IOException e) {
-                    size = 0;
-                }
-                job.setSize(size);
-                job.setModifiedAt(clock.instant());
-            } finally {
-                job.getLock().writeLock().unlock();
-            }
-        } catch (Exception e) {
-            try {
-                job.getLock().writeLock().lock();
-                job.setStatus(ExportJob.Status.FAILED);
-                job.setMessage("Failed processing events: " + e.getMessage());
-                job.setModifiedAt(clock.instant());
-            } finally {
-                job.getLock().writeLock().unlock();
-            }
-        }
     }
 
     private ExportJob getJob(String apiKey, long jobId) throws JobNotFoundException {
