@@ -24,6 +24,7 @@ repositories {
 }
 
 ext {
+    springdocVersion = '3.0.3'
     mapstructVersion = '1.6.3'
     apacheCommonsCsvVersion = '1.11.0'
 }
@@ -35,6 +36,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
 
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
