@@ -3,6 +3,7 @@ package io.github.tech0ver.exporter;
 import io.github.tech0ver.domain.Event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.resilience.annotation.ConcurrencyLimit;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -23,6 +24,7 @@ public class SlowEventFileExporter implements EventFileExporter {
     }
 
     @Override
+    @ConcurrencyLimit(limitString = "${export.limit:1}")
     public Path exportFile(String filename, List<Event> events) throws IOException {
         try {
             TimeUnit.MILLISECONDS.sleep(timeout);
