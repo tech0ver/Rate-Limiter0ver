@@ -3,6 +3,7 @@ package io.github.tech0ver.exporter;
 import io.github.tech0ver.domain.Event;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.springframework.resilience.annotation.ConcurrencyLimit;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
@@ -13,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-@Component
 public class CsvEventFileExporter implements EventFileExporter {
 
     private final Path exportDirectory = createExportDirectory();

@@ -5,6 +5,7 @@ import io.github.tech0ver.domain.EventSearchCondition;
 import io.github.tech0ver.domain.ExportJob;
 import io.github.tech0ver.service.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.List;
 public class DefaultEventExportJobWorker implements EventExportJobWorker {
 
     private final EventService eventService;
-    private final EventFileExporter eventFileExporter;
+    private final @Qualifier("defaultEventFileExporter") EventFileExporter eventFileExporter;
 
     private final Clock clock;
 

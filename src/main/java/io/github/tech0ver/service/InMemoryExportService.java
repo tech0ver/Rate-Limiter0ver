@@ -32,7 +32,7 @@ public class InMemoryExportService implements ExportService {
         long jobId = state.counter.getAndIncrement();
         ExportJob job = new ExportJob(jobId, clock.instant());
         state.jobs.put(jobId, job);
-        executor.execute(() -> eventExportJobWorker.processJob(apiKey, job));
+        executor.execute(() -> eventExportJobWorker.processJob(apiKey, job)); // naive
         return jobId;
     }
 
